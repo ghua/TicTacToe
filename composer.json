@@ -1,0 +1,25 @@
+{
+    "name":         "ghua/tic-tac-toe",
+    "type":         "library",
+    "description":  "Tic-tac-toe game for interview",
+    "keywords":     ["interview", "tic-tac-toe", "algorithms"],
+    "homepage":     "https://github.com/ghua/AndersonDarlingTest",
+    "license":      "MIT",
+    "authors":      [
+        {
+            "name":     "Semyon Velichko",
+            "email": "semyon@velichko.net"
+        }
+    ],
+    "require":      {
+        "php":  ">=5.3.0",
+        "phpunit/phpunit": "4.7.*"
+    },
+    "autoload":     {
+        "psr-4": {
+            "TicTacToe\\": "src/",
+            "TicTacToe\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "dev"
+}
