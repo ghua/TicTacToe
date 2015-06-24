@@ -172,10 +172,112 @@ class Board
             $this->setField($num, $this->getCurrentSide());
             $this->reverseSide();
 
-            return $this;
+            return true;
         }
 
         return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUnplayed()
+    {
+        return count($this->getAvailablePositions()) === 9;
+    }
+
+    /**
+     * @return bool|int
+     */
+    public function isFinalMove()
+    {
+        $availablePositions = $this->getAvailablePositions();
+
+        return count($availablePositions) === 1;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getFreeCorner()
+    {
+        $corners = [0, 2, 6, 8];
+        for ($n = 0; $n < count($corners); $n++) {
+            if ($this->isAvailablePosition($corners[$n])) {
+                return $corners[$n];
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return int
+     */
+    public function isGameOver()
+    {
+        $availablePositions = $this->getAvailablePositions();
+        if (count($availablePositions) === 0) {
+            return true;
+        }
+
+        return $this->assessPaths(array(
+            [0, 4, 8], [2, 4, 6],
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8]
+        ));
+    }
+
+    /**
+     * @param array $paths
+     *
+     * @return int
+     */
+    public function assessPaths($paths)
+    {
+        for ($w = 0; $w < count($paths); $w++) {
+            $path = $paths[$w];
+            $result = '';
+            for ($n = 0; $n < count($path); $n++) {
+                $position = $path[$n];
+                $field = $this->getField($position);
+                $result .= (string) $field;
+            }
+
+            if ($result === 'xxx' || $result === 'ooo') {
+                return $result[0];
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        $return = '';
+        for ($n = 0; $n < count($this->fields); $n++) {
+            $field = $this->getField($n);
+            if ($field) {
+                $return .= ' ' . $field . ' ';
+            } else {
+                $return .= '   ';
+            }
+
+            if (!in_array($n, [2, 5, 8])) {
+                $return .= "|";
+            }
+            if (($n+1) % 3 === 0) {
+                $return .= "\n";
+                if ($n !== 8) {
+                    $return .= str_repeat('-', 11) . "\n";
+                }
+            }
+        }
+
+        return $return;
     }
 
 }

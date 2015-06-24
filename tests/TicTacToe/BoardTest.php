@@ -86,4 +86,38 @@ class BoardTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('x', $this->board->getField(3));
     }
 
+    /**
+     * @return array
+     */
+    public function pathAndScoreProvider()
+    {
+        return array(
+            array(array('x', 0, 0, 0, 'x', 0, 0, 0, 'x'), array(0, 4, 8), 'x'),
+            array(array(0, 0, 'x', 0, 'x', 0, 'x', 0, 0), array(2, 4, 6), 'x'),
+            array(array('x', 'x', 'x', 0, 0, 0, 0, 0, 0), array(0, 1, 2), 'x'),
+            array(array(0, 0, 0, 'x', 'x', 'x', 0, 0, 0), array(3, 4, 5), 'x'),
+            array(array(0, 0, 0, 0, 0, 0, 'x', 'x', 'x'), array(6, 7, 8), 'x'),
+            array(array('x', 0, 0, 'x', 0, 0, 'x', 0, 0), array(0, 3, 6), 'x'),
+            array(array(0, 'x', 0, 0, 'x', 0, 0, 'x', 0), array(1, 4, 7), 'x'),
+            array(array(0, 0, 'x', 0, 0, 'x', 0, 0, 'x'), array(2, 5, 8), 'x'),
+            array(array(0, 0, 'o', 0, 0, 'o', 0, 0, 'o'), array(2, 5, 8), 'o'),
+            array(array('o', 'x', 'o', 'x', 'o', 'x', 'o', 'x', 'o'), array(2, 5, 8), false),
+        );
+    }
+
+    /**
+     * @param array $state
+     * @param array $path
+     * @param int   $score
+     *
+     * @dataProvider pathAndScoreProvider
+     */
+    public function testAssessPath($state, $path, $score)
+    {
+        $this->board->setFields($state);
+        $result = $this->board->assessPaths(array($path));
+        $this->assertEquals($score, $result);
+    }
+
 }
+

@@ -31,35 +31,29 @@ class PlayerTest extends \PHPUnit_Framework_TestCase
         $this->player = new Player($this->board);
     }
 
-    /**
-     * @return array
-     */
-    public function pathAndScoreProvider()
+    public function testChosePossibleMove()
     {
-        return array(
-            array(array('x', 0, 0, 0, 'x', 0, 0, 0, 'x'), array(0, 4, 8), 1),
-            array(array(0, 0, 'x', 0, 'x', 0, 'x', 0, 0), array(2, 4, 6), 1),
-            array(array('x', 'x', 'x', 0, 0, 0, 0, 0, 0), array(0, 1, 2), 1),
-            array(array(0, 0, 0, 'x', 'x', 'x', 0, 0, 0), array(3, 4, 5), 1),
-            array(array(0, 0, 0, 0, 0, 0, 'x', 'x', 'x'), array(6, 7, 8), 1),
-            array(array('x', 0, 0, 'x', 0, 0, 'x', 0, 0), array(0, 3, 6), 1),
-            array(array(0, 'x', 0, 0, 'x', 0, 0, 'x', 0), array(1, 4, 7), 1),
-            array(array(0, 0, 'x', 0, 0, 'x', 0, 0, 'x'), array(2, 5, 8), 1),
-        );
-    }
+        $this->assertTrue($this->board->move(4));
+        $bestMove = $this->player->chooseBestMove();
+        $this->assertEquals(0, $bestMove);
+        $this->assertTrue($this->board->move($bestMove));
+        $this->assertTrue($this->board->move(2));
+        $bestMove = $this->player->chooseBestMove();
+        $this->assertEquals(6, $bestMove);
+        $this->assertTrue($this->board->move($bestMove));
+        $this->assertTrue($this->board->move(3));
+        $bestMove = $this->player->chooseBestMove();
+        $this->assertEquals(5, $bestMove);
+        $this->assertTrue($this->board->move($bestMove));
+        $this->assertTrue($this->board->move(1));
+        $bestMove = $this->player->chooseBestMove();
+        $this->assertEquals(7, $bestMove);
+        $this->assertTrue($this->board->move($bestMove));
+        $this->assertTrue($this->board->move(8));
 
-    /**
-     * @param array $state
-     * @param array $path
-     * @param int   $score
-     *
-     * @dataProvider pathAndScoreProvider
-     */
-    public function testAssessPath($state, $path, $score)
-    {
-        $this->board->setFields($state);
-        $result = $this->player->assessPaths(array($path));
-        $this->assertEquals($score, $result);
+        $this->assertTrue($this->board->isGameOver());
+
+        return;
     }
 
 }

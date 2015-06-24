@@ -16,86 +16,30 @@ class Node
     /**
      * @var int
      */
-    private $weight = 0;
-
-    /**
-     * @var Node[]
-     */
-    private $children = array();
-
-    /**
-     * @var string
-     */
-    private $boardState;
+    private $score = 0;
 
     /**
      * @var int
      */
     private $position;
 
+
     /**
-     * @var string
+     * @param int    $score
+     * @param int    $position
      */
-    private $stepSide;
+    public function __construct($score, $position)
+    {
+        $this->score = $score;
+        $this->position = $position;
+    }
 
     /**
      * @return int
      */
-    public function getWeight()
+    public function getScore()
     {
-        return $this->weight;
-    }
-
-    /**
-     * @param int $weight
-     *
-     * @return $this;
-     */
-    public function setWeight($weight)
-    {
-        $this->weight = $weight;
-
-        return $this;
-    }
-
-    /**
-     * @return Node[]
-     */
-    public function getChildren()
-    {
-        return $this->children;
-    }
-
-    /**
-     * @param Node[] $children
-     *
-     * @return $this;
-     */
-    public function setChildren($children)
-    {
-        $this->children = $children;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getBoardState()
-    {
-        return $this->boardState;
-    }
-
-    /**
-     * @param string $boardState
-     *
-     * @return $this;
-     */
-    public function setBoardState($boardState)
-    {
-        $this->boardState = $boardState;
-
-        return $this;
+        return $this->score;
     }
 
     /**
@@ -104,49 +48,6 @@ class Node
     public function getPosition()
     {
         return $this->position;
-    }
-
-    /**
-     * @param int $position
-     *
-     * @return $this;
-     */
-    public function setPosition($position)
-    {
-        $this->position = $position;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getStepSide()
-    {
-        return $this->stepSide;
-    }
-
-    /**
-     * @param string $stepSide
-     *
-     * @return $this;
-     */
-    public function setStepSide($stepSide)
-    {
-        $this->stepSide = $stepSide;
-
-        return $this;
-    }
-
-    /**
-     * @param Node $node
-     *
-     * @return $this
-     */
-    public function addChildren(Node $node) {
-        $this->children[] = $node;
-
-        return $this;
     }
 
 }

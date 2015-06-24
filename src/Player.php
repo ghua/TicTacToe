@@ -12,10 +12,32 @@ namespace TicTacToe;
 class Player
 {
 
+    const INITIAL_DEPTH = 0;
+
     /**
      * @var Board
      */
     private $board;
+
+    /**
+     * @var string
+     */
+    private $side = 'o';
+
+    /**
+     * @var Node[]
+     */
+    private $nodes;
+
+    /**
+     * @var int
+     */
+    private $bestScore;
+
+    /**
+     * @var int
+     */
+    private $currentMoveChoice;
 
     /**
      * @param Board $board
@@ -23,82 +45,112 @@ class Player
     public function __construct(Board $board)
     {
         $this->board = $board;
+        $this->side = $this->board->getCurrentSide();
+    }
+
+    public function chooseBestMove()
+    {
+        if ($this->board->isUnplayed()) {
+            return $this->board->getFreeCorner();
+        }
+
+        if ($this->board->isFinalMove()) {
+            $availablePositions = $this->board->getAvailablePositions();
+
+            return $availablePositions[0];
+        }
+
+        return $this->bestPossibleMove();
+    }
+
+    private function bestPossibleMove()
+    {
+        $this->bestScore = count($this->board->getAvailablePositions()) + 1;
+        $bound = count($this->board->getAvailablePositions()) + 1;
+        $this->minimax(clone $this->board, self::INITIAL_DEPTH, -$bound, $bound);
+
+        return $this->currentMoveChoice;
     }
 
     /**
-     * @param int $position
+     * @param Board $board
+     * @param int   $depth
+     * @param int   $lowerBound
+     * @param int   $upperBound
      *
-     * @return Node
+     * @return int
      */
-    private function setUpNode($position)
+    private function minimax($board, $depth, $lowerBound, $upperBound)
     {
-        $node = new Node();
-        $node->setBoardState($this->board->getFields());
-        $node->setStepSide($this->board->getCurrentSide());
-        $node->setPosition($position);
-        $node->setWeight($this->assessCurrentBoardState());
+        $isGameOver = $board->isGameOver();
+        if ($isGameOver) {
+            return $this->evaluateState($board, $depth);
+        }
 
-        return $node;
-    }
-
-    /**
-     * @param Node $parent
-     *
-     * @return Node
-     */
-    private function buildTree(Node $parent)
-    {
-        $availablePositions = $this->board->getAvailablePositions();
+        /**
+         * @var Node[] $candidateMoveNodes
+         */
+        $candidateMoveNodes = [];
+        $availablePositions = $board->getAvailablePositions();
         for ($n = 0; $n < count($availablePositions); $n++) {
-            $position = $availablePositions[$n];
-            $node = $this->setUpNode($position);
-            $this->board->move($position);
-            $parent->addChildren($this->buildTree($node));
-            $this->board->setFields($node->getBoardState());
-            $this->board->setCurrentSide($node->getStepSide());
+            $move = $availablePositions[$n];
+            $childBoard = clone $board;
+            $childBoard->move($move);
+            $score = $this->minimax($childBoard, $depth + 1, $lowerBound, $upperBound);
+            $node = new Node($score, $move);
+
+            if ($board->getCurrentSide() === $this->side) {
+                $candidateMoveNodes[] = $node;
+                if ($node->getScore() > $lowerBound) {
+                    $lowerBound = $node->getScore();
+                }
+            } else {
+                if ($node->getScore() < $upperBound) {
+                    $upperBound = $node->getScore();
+                }
+            }
+            if ($upperBound < $lowerBound) {
+                break;
+            }
         }
 
-        return $parent;
+        if ($board->getCurrentSide() === $this->side) {
+            $candidateScores = [];
+            $candidateMoves = [];
+            for ($n = 0; $n < count($candidateMoveNodes); $n++) {
+                $node = $candidateMoveNodes[$n];
+                $candidateMoves[] = $node->getPosition();
+                $candidateScores[] = $node->getScore();
+            }
+
+            $this->currentMoveChoice = $candidateMoves[array_search(max($candidateScores), $candidateScores)];
+
+            return $lowerBound;
+        } else {
+            return $upperBound;
+        }
     }
 
-    /**
-     * @return int
-     */
-    private function assessCurrentBoardState()
-    {
-        $score = 0;
-        $score += $this->assessPaths(array(array(0, 4, 8), array(2, 4, 6)));
-        $score += $this->assessPaths(array(array(0, 1, 2), array(3, 4, 5), array(6, 7, 8)));
-        $score += $this->assessPaths(array(array(0, 3, 6), array(1, 4, 7, array(2, 5, 8))));
-
-        return $score;
-    }
 
     /**
-     * @param array $paths
+     * @param Board $board
+     * @param int   $depth
      *
      * @return int
      */
-    public function assessPaths($paths)
+    private function evaluateState(Board $board, $depth)
     {
-        $score = 0;
-        $ideal = str_repeat($this->board->getCurrentSide(), 3);
+        $state = $board->isGameOver();
 
-        for ($w = 0; $w < count($paths); $w++) {
-            $path = $paths[$w];
-            $result = '';
-            for ($n = 0; $n < count($path); $n++) {
-                $position = $path[$n];
-                $field = $this->board->getField($position);
-                $result .= (string) $field;
-            }
-
-            if ($result === $ideal) {
-                $score += 1;
-            }
+        if ($state === true) {
+            return 0;
         }
 
-        return $score;
+        if ($state === $this->side) {
+            return $this->bestScore - $depth;
+        } else {
+            return $depth - $this->bestScore;
+        }
     }
 
 }
